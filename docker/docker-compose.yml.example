@@ -1,0 +1,56 @@
+version: "2"
+services:
+  nginx:
+    env_file:
+      - .env
+    build:
+      context: .
+      dockerfile: docker/nginx/dev/Dockerfile
+    ports:
+      - 8000:80
+    volumes:
+      - ./public:/var/www/data/public
+      - ./storage/app/public:/data/public/storage:ro
+    depends_on:
+      - php-fpm
+  php-fpm:
+    env_file: .env
+    build:
+      context: .
+      dockerfile: docker/php-fpm/dev/Dockerfile
+    volumes:
+      - ./:/var/www/data
+      - ./docker/php-fpm/scripts:/var/www/custom-scripts:ro
+      - composer-data:/composer
+    depends_on:
+      - postgres
+      - redis
+  postgres:
+    build:
+        context: .
+        dockerfile: docker/postgres/Dockerfile
+    image: postgis/postgis
+    environment:
+      POSTGRES_DB: pasport
+      POSTGRES_USER: pasport
+      POSTGRES_PASSWORD: password
+      PG_DATA: /var/lib/postgresql/data
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+  adminer:
+    image: adminer
+    ports:
+      - 8080:8080
+    environment:
+      ADMINER_DESIGN: pepa-linha
+      ADMINER_DEFAULT_SERVER: postgres
+    depends_on:
+      - postgres
+  redis:
+    image: redis
+    volumes:
+      - redis-data:/data
+volumes:
+  postgres-data:
+  redis-data:
+  composer-data:

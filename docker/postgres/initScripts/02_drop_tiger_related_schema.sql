@@ -1,0 +1,4 @@
+\c pasport
+
+DROP SCHEMA IF EXISTS tiger CASCADE;
+DROP SCHEMA IF EXISTS tiger_data CASCADE;
